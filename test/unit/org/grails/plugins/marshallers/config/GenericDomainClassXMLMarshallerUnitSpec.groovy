@@ -203,6 +203,39 @@ class GenericDomainClassXMLMarshallerUnitSpec extends Specification {
 		m.items.item[1].amount
 	}
 	
+	def "inherited configuration should use named config on association if specified"(){
+		given:
+		Invoice.marshalling = {
+			named{
+				deep 'items'
+				inherited {
+					attribute 'admin','created'
+				}
+			}
+		}
+		Item.marshalling = {
+			named{
+				ignore 'name'
+			}
+		}
+		initialize()
+		when:
+		def	j
+		XML.use('inherited'){
+			j=j=new XML(invoice)
+		}
+		println j.toString()
+		def m=new XmlSlurper().parseText(j.toString())
+		then:
+		m.items.item.size()==2
+		!m.items.item[0].name.text()
+		!m.items.item[1].name.text()
+		m.items.item[0].amount
+		m.items.item[1].amount
+	}
+	
+	
+	
 	private def initialize(){
 		grailsApplication.mainContext.convertersConfigurationInitializer.initialize(grailsApplication)
 		grailsApplication.mainContext.extendedConvertersConfigurationInitializer.initialize()

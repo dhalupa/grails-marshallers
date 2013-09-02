@@ -7,6 +7,10 @@ package org.grails.plugins.marshallers.config
  */
 class MarshallingConfig {
 	/**
+	 * Inherited configuration name or null if root configuration
+	 */
+	MarshallingConfig _parent
+	/**
 	 * List of field names. If a field representing one-to-many relation is marked as deep, all contained data of related objects will be serialized
 	 */
 	List deep
@@ -86,6 +90,16 @@ class MarshallingConfig {
 		}
 		worker()
 		result
+	}
+	
+	def resolvePath(){
+		def m=[] as List
+		def c=this
+		while(c._parent){
+			m<<c.name
+			c=c._parent
+		}
+		m.reverse()
 	}
 	
 }

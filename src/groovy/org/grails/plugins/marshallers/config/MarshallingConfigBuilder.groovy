@@ -5,16 +5,21 @@ import java.util.Map;
  * @author dhalupa
  */
 class MarshallingConfigBuilder {
-	private MarshallingConfig config=new MarshallingConfig()
+	MarshallingConfig config=new MarshallingConfig()
+	
 	
 	MarshallingConfigBuilder(){
 		
 	}
 	
-	MarshallingConfigBuilder(MarshallingConfig c){
+	MarshallingConfigBuilder(MarshallingConfigBuilder parentBuilder,String name){
+		config._parent=parentBuilder.config
+		config.name=name
+		config.type=parentBuilder.config.type
+		
 		['deep','identifier','elementName','attribute','virtual','shouldOutputIdentifier','shouldOutputClass','shouldOutputVersion','ignore'].each{p->
-			if(c[p]!=null){
-				config[p]=c[p]
+			if(config._parent[p]!=null){
+				config[p]=config._parent[p]
 			}
 		}
 	}
@@ -97,9 +102,7 @@ class MarshallingConfigBuilder {
 	def methodMissing(String name,args){
 		if(args.size()==1 && args[0] instanceof Closure){
 			Closure c=args[0] as Closure
-			MarshallingConfigBuilder builder=new MarshallingConfigBuilder(config)
-			builder.config.type=config.type
-			builder.config.name=name
+			MarshallingConfigBuilder builder=new MarshallingConfigBuilder(this,name)
 			c.delegate=builder
 			c.resolveStrategy = Closure.DELEGATE_FIRST
 			config.children<<builder.config

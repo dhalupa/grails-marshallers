@@ -22,7 +22,11 @@ import groovy.util.logging.Log4j;
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClassUtils as GCU
 import org.codehaus.groovy.grails.support.proxy.ProxyHandler
+import org.codehaus.groovy.grails.web.converters.configuration.ConverterConfiguration;
 import org.codehaus.groovy.grails.web.converters.configuration.ConvertersConfigurationHolder
+import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
+import org.codehaus.groovy.grails.web.converters.marshaller.ObjectMarshaller;
+import org.grails.plugins.marshallers.config.ConfigurationRegistry;
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigBuilder
 import org.springframework.context.ApplicationContext
@@ -34,96 +38,94 @@ import org.springframework.context.ApplicationContextAware
  */
 @Log4j
 class ExtendedConvertersConfigurationInitializer implements ApplicationContextAware {
-	
+
 	private ApplicationContext applicationContext
 	private GrailsApplication application
 
-   
-   
-    void initialize() {
-        application=applicationContext.grailsApplication
+
+
+	void initialize() {
+		application=applicationContext.grailsApplication
 		ProxyHandler proxyHandler = applicationContext.getBean(ProxyHandler.class)
-		
-		def configNames=buildConfigNames()
-		
-		configNames.xml.flatten().each{name->
-			Map configCache=buildNamedConfigCache('xml', name)
-			if(name=='default'){
-				XML.registerObjectMarshaller(new GenericDomainClassXMLMarshaller(proxyHandler, application,configCache))
-			}else{
-				XML.createNamedConfig(name) {
-					it.registerObjectMarshaller(new GenericDomainClassXMLMarshaller(proxyHandler, application,configCache))
-				}
-			}
+		ConfigurationRegistry registry=createRegistry()
+		[xml: XML, json: JSON].each { type, converterClass ->
+			def marshallerCfg = application.config?.grails?.plugins?.marshallers?."${type}"
+			processConfig(marshallerCfg, converterClass, type)
+			processDomainClassConfig(type,converterClass,registry,proxyHandler)
 		}
-		configNames.json.flatten().each{name->
-			Map configCache=buildNamedConfigCache('json', name)
-			if(name=='default'){
-				JSON.registerObjectMarshaller(new GenericDomainClassJSONMarshaller(proxyHandler,application,configCache))
-			}else{
-				JSON.createNamedConfig(name) {
-					it.registerObjectMarshaller(new GenericDomainClassJSONMarshaller(proxyHandler,application,configCache));
-				}
+
+		
+	}
+
+	private ConverterConfiguration getConverterConfiguration(Class converterClass,String name){
+		ConverterConfiguration c
+		if(name=='default'){
+			c= ConvertersConfigurationHolder.getConverterConfiguration(converterClass)
+			if (! (c instanceof DefaultConverterConfiguration)) {
+				c = new DefaultConverterConfiguration(c)
+				ConvertersConfigurationHolder.setDefaultConfiguration(converterClass, c)
 			}
+		}else{
+			c=ConvertersConfigurationHolder.getNamedConverterConfiguration(name, converterClass)
 		}
-        [xml: XML, json: JSON].each { type, converterClass ->
-            def marshallerCfg = application.config?.grails?.plugins?.marshallers?."${type}"
-            processConfig(marshallerCfg, converterClass, type)            
-        }
-    }
-    
-   
-	private Map buildConfigNames(){
-		MarshallingConfigBuilder builder=new MarshallingConfigBuilder()
-		def nc=[xml:[] as Set,json:[] as Set]
+		return c
+	}
+
+	private ObjectMarshaller getMarshaller(Class converterClass,proxyHandler, application,configCache){
+		if(converterClass==JSON.class){
+			return new GenericDomainClassJSONMarshaller(proxyHandler,application,configCache)
+		}else{
+			return new GenericDomainClassXMLMarshaller(proxyHandler, application,configCache)
+		}
+	}
+
+	private ConfigurationRegistry createRegistry(){
+		ConfigurationRegistry registry=new ConfigurationRegistry()
 		application.domainClasses.each{
 			Closure mc=GCU.getStaticPropertyValue(it.clazz,'marshalling')
 			if(mc){
+				MarshallingConfigBuilder builder=new MarshallingConfigBuilder()
 				mc.delegate=builder
 				mc.resolveStrategy=Closure.DELEGATE_FIRST
 				mc()
 				MarshallingConfig c=builder.config
-				['xml', 'json'].each {type->nc[type] << c.findConfigNames(type)}
+				registry.registerConfig(it.clazz,c)
 			}
 		}
-		nc
+		registry
+	}
+	
+	private void processDomainClassConfig(String type,Class converterClass,ConfigurationRegistry registry,proxyHandler){
+		def model=registry["${type}Model"]
+		Queue q=[] as Queue
+		q<<model
+		while(!q.isEmpty()){
+			def c=q.poll()
+			ConverterConfiguration converterConfig=getConverterConfiguration(converterClass,c.name)
+			if(converterConfig==null){
+				def parentConverter=getConverterConfiguration(converterClass, c.parent.name)
+				converterConfig=new DefaultConverterConfiguration(parentConverter)
+				ConvertersConfigurationHolder.setNamedConverterConfiguration(converterClass, c.name, converterConfig)
+			}
+			ObjectMarshaller marshaller=getMarshaller(converterClass,proxyHandler,application,c.registry)
+			converterConfig.registerObjectMarshaller(marshaller)
+		}
 		
 	}
-    
-    private void processConfig(cfg, Class converterClass, type) {
-        def converterCfg = ConvertersConfigurationHolder.getConverterConfiguration(converterClass)
-        def builder = new ConfigurationBuilder(type: type, applicationContext: applicationContext, cfg: converterCfg, log: log, converterClass: converterClass, cfgName: "default")
-        builder.registerSpringMarshallers()
-        if (cfg != null && cfg instanceof Closure) {
-            cfg.delegate = builder
-            cfg.resolveStrategy = Closure.DELEGATE_FIRST
-            cfg.call()
-        }
-    }
-	
-	private Map buildNamedConfigCache(String type,String configName){
-		Map configCache=[:]
-		application.domainClasses.each { domainClass ->
-			Closure mc=GCU.getStaticPropertyValue(domainClass.clazz,'marshalling');
-			if(mc){
-				MarshallingConfigBuilder builder=new MarshallingConfigBuilder();
-				mc.delegate=builder
-				mc()
-				def namedConfig=builder.config.findNamedConfig(type,configName)
-				if(namedConfig){
-					configCache[domainClass.clazz]=namedConfig
-				}else{
-					configCache[domainClass.clazz]=builder.config.findNamedConfig(type,'default')
-				}
-			}
+
+	private void processConfig(cfg, Class converterClass, type) {
+		def converterCfg = ConvertersConfigurationHolder.getConverterConfiguration(converterClass)
+		def builder = new ConfigurationBuilder(type: type, applicationContext: applicationContext, cfg: converterCfg, log: log, converterClass: converterClass, cfgName: "default")
+		builder.registerSpringMarshallers()
+		if (cfg != null && cfg instanceof Closure) {
+			cfg.delegate = builder
+			cfg.resolveStrategy = Closure.DELEGATE_FIRST
+			cfg.call()
 		}
-		configCache
 	}
-	
+
 	void setApplicationContext(ApplicationContext applicationContext){
 		this.applicationContext=applicationContext
 	}
-
-    
 }
 
