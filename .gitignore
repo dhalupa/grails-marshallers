@@ -17,3 +17,6 @@ target
 /plugin.xml
 out/
 .DS_Store
+
+.gradle
+build
