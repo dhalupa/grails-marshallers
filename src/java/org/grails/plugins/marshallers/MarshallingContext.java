@@ -42,7 +42,7 @@ public class MarshallingContext implements Map<String, Object> {
     @Override
     public Object get(Object key) {
         WeakReference r = instance.get().get(key);
-        return r.get();
+        return r != null ? r.get() : null;
     }
 
     @Override

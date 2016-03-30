@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-import org.codehaus.groovy.grails.commons.GrailsClassUtils as GCU;
-import org.codehaus.groovy.grails.support.proxy.DefaultProxyHandler;
-import org.codehaus.groovy.grails.support.proxy.ProxyHandler;
 import org.grails.plugins.marshallers.ExtendedConvertersConfigurationInitializer
-import org.grails.plugins.marshallers.GenericDomainClassJSONMarshaller;
-import org.grails.plugins.marshallers.GenericDomainClassXMLMarshaller;
-import org.grails.plugins.marshallers.XmlMarshallerArtefactHandler
 import org.grails.plugins.marshallers.JsonMarshallerArtefactHandler
-import org.grails.plugins.marshallers.config.MarshallingConfig;
-import org.grails.plugins.marshallers.config.MarshallingConfigBuilder;
-import grails.converters.XML;
-import grails.converters.JSON;
-
+import org.grails.plugins.marshallers.XmlMarshallerArtefactHandler
 
 class MarshallersGrailsPlugin {
 	// the plugin version
-    def version = "0.7"
+    def version = "0.8-SNAPSHOT"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.3 > *"
     
