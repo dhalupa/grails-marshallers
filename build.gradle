@@ -5,9 +5,11 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
+        jcenter()
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '3.2.0')
     }
 }
 
@@ -16,7 +18,7 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-version "0.1-SNAPSHOT"
+version "0.8-SNAPSHOT"
 group "org.grails.plugins"
 
 apply plugin: 'maven-publish'
@@ -25,9 +27,10 @@ apply plugin: 'idea'
 apply plugin: "spring-boot"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-gsp"
+apply plugin: 'com.jfrog.artifactory'
 // Used for publishing to central repository, remove if not needed
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/bintrayPublishing.gradle'
+apply from: 'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
+apply from: 'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/bintrayPublishing.gradle'
 
 ext {
     grailsVersion = project.grailsVersion
@@ -67,4 +70,44 @@ dependencies {
 
 task wrapper(type: Wrapper) {
     gradleVersion = gradleWrapperVersion
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            //required in order to remove all dependencies without version from pom
+            pom.withXml {
+                def pomNode = asNode()
+                pomNode.dependencyManagement.replaceNode {}
+                pomNode.dependencies.dependency.findAll {
+                    it.version.text().isEmpty()
+                }.each {
+                    it.replaceNode {}
+                }
+            }
+            from components.java
+        }
+    }
+}
+
+artifactory {
+    contextUrl = 'https://artifactory.abz-reporting.com/artifactory'
+    publish {
+        repository {
+            repoKey = 'plugins-snapshot-local' // The Artifactory repository key to publish to
+            username = "${abzLdapUser}" // The publisher user name
+            password = "${abzLdapPassword}" // The publisher password
+        }
+        defaults {
+            // Reference to Gradle publications defined in the build script.
+            // This is how we tell the Artifactory Plugin which artifacts should be
+            // published to Artifactory.
+            publications('mavenJava')
+            publishArtifacts = true
+            // Publish generated POM files to Artifactory (true by default)
+            publishPom = true
+        }
+    }
+    resolve {
+        repoKey = 'jcenter'
+    }
 }

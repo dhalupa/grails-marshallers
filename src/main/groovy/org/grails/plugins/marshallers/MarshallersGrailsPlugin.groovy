@@ -1,7 +1,7 @@
-package marshallers
+package org.grails.plugins.marshallers
 
 import grails.plugins.*
-import org.grails.plugins.marshallers.ExtendedConvertersConfigurationInitializer
+
 
 class MarshallersGrailsPlugin extends Plugin {
 
