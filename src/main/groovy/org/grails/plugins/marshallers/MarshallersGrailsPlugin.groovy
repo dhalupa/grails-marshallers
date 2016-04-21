@@ -1,8 +1,9 @@
 package org.grails.plugins.marshallers
 
-import grails.plugins.*
+import grails.plugins.Plugin
+import groovy.util.logging.Log4j
 
-
+@Log4j
 class MarshallersGrailsPlugin extends Plugin {
 
     // the version or versions of Grails the plugin is designed for

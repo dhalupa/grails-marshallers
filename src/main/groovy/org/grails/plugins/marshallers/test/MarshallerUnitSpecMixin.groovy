@@ -1,7 +1,5 @@
 package org.grails.plugins.marshallers.test
 
-
-
 import org.grails.plugins.marshallers.ExtendedConvertersConfigurationInitializer
 import org.grails.plugins.marshallers.JsonMarshallerArtefactHandler
 import org.grails.plugins.marshallers.XmlMarshallerArtefactHandler

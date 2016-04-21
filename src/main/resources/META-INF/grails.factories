@@ -1,0 +1,1 @@
+grails.core.ArtefactHandler=org.grails.plugins.marshallers.JsonMarshallerArtefactHandler,org.grails.plugins.marshallers.XmlMarshallerArtefactHandler
