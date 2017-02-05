@@ -84,14 +84,16 @@ class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
                 serializeProperty(property, mc, beanWrapper, json, writer, value)
             }
         }
-
+        def entityContext = [:]
         mc.virtual?.each { prop, callable ->
             writer.key(prop)
             def cl = mc.virtual[prop]
             if (cl.maximumNumberOfParameters == 2) {
                 cl.call(value, json)
-            } else {
+            } else if (cl.maximumNumberOfParameters == 3) {
                 cl.call(value, json, marshallingContext)
+            } else {
+                cl.call(value, json, entityContext, marshallingContext)
             }
 
         }
