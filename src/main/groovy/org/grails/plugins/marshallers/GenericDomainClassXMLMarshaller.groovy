@@ -153,7 +153,7 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
                     GrailsDomainClass referencedDomainClass = property.getReferencedDomainClass()
 
                     // Embedded are now always fully rendered
-                    if (referencedDomainClass == null || property.isEmbedded() || GrailsClassUtils.isJdk5Enum(property.getType())) {
+                    if (referencedDomainClass == null || property.isEmbedded()) {
                         xml.convertAnother(referenceObject)
                     } else if (property.isOneToOne() || property.isManyToOne() || property.isEmbedded()) {
                         asShortObject(referenceObject, xml, referencedDomainClass.getIdentifier(), referencedDomainClass)

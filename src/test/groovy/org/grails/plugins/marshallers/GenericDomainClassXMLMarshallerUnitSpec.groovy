@@ -1,7 +1,7 @@
 package org.grails.plugins.marshallers
 
 import grails.converters.XML
-import grails.test.mixin.Mock
+import grails.testing.gorm.DataTest
 import org.grails.web.converters.configuration.ConvertersConfigurationInitializer
 import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.converters.marshaller.NameAwareMarshaller
@@ -14,12 +14,13 @@ import spock.lang.Specification
  *
  */
 
-@Mock([Invoice, Item])
-class GenericDomainClassXMLMarshallerUnitSpec extends Specification {
+
+class GenericDomainClassXMLMarshallerUnitSpec extends Specification implements DataTest{
 
 	def invoice, item1, item2
 
 	def setup(){
+		mockDomains(Invoice,Item)
 		Invoice.marshalling = { }
 		Item.marshalling = {  }
 		grailsApplication.registerArtefactHandler(new JsonMarshallerArtefactHandler())

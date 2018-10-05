@@ -1,7 +1,5 @@
 package org.grails.plugins.marshallers;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,7 +16,7 @@ public class MarshallingContext implements Map<String, Object> {
     private ThreadLocal<Map<String, WeakReference>> instance = new ThreadLocal<Map<String, WeakReference>>() {
         @Override
         protected Map<String, WeakReference> initialValue() {
-            return new HashMap<String, WeakReference>();
+            return new HashMap<>();
         }
     };
 
@@ -39,7 +37,7 @@ public class MarshallingContext implements Map<String, Object> {
 
     @Override
     public boolean containsValue(Object value) {
-        throw new NotImplementedException("not implemented for marshalling context");
+        throw new IllegalStateException("not implemented for marshalling context");
     }
 
     @Override
@@ -61,7 +59,7 @@ public class MarshallingContext implements Map<String, Object> {
 
     @Override
     public void putAll(Map<? extends String, ?> m) {
-        throw new NotImplementedException("not implemented for marshalling context");
+        throw new IllegalStateException("not implemented for marshalling context");
     }
 
 
@@ -72,16 +70,16 @@ public class MarshallingContext implements Map<String, Object> {
 
     @Override
     public Set<String> keySet() {
-        throw new NotImplementedException("not implemented for marshalling context");
+        throw new IllegalStateException("not implemented for marshalling context");
     }
 
     @Override
     public Collection<Object> values() {
-        throw new NotImplementedException("not implemented for marshalling context");
+        throw new IllegalStateException("not implemented for marshalling context");
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        throw new NotImplementedException("not implemented for marshalling context");
+        throw new IllegalStateException("not implemented for marshalling context");
     }
 }

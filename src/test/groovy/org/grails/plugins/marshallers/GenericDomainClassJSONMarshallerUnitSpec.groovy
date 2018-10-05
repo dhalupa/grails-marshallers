@@ -2,7 +2,7 @@ package org.grails.plugins.marshallers
 
 import grails.converters.JSON
 import grails.persistence.Entity
-import grails.test.mixin.Mock
+import grails.testing.gorm.DataTest
 import org.grails.web.converters.configuration.ConvertersConfigurationInitializer
 import spock.lang.Specification
 
@@ -11,12 +11,13 @@ import spock.lang.Specification
  * @author dhalupa
  *
  */
-@Mock([Invoice, Item])
-class GenericDomainClassJSONMarshallerUnitSpec extends Specification {
+
+class GenericDomainClassJSONMarshallerUnitSpec extends Specification implements DataTest {
 
     def invoice, item1, item2
 
     def setup() {
+        mockDomains(Invoice, Item)
         Invoice.marshalling = {}
         Item.marshalling = {}
         grailsApplication.registerArtefactHandler(new JsonMarshallerArtefactHandler())
@@ -85,7 +86,7 @@ class GenericDomainClassJSONMarshallerUnitSpec extends Specification {
         def m = JSON.parse(j.toString())
         then:
         m.class != null
-       // m.version != null
+        // m.version != null
     }
 
     def "specifying virtual property should output value"() {

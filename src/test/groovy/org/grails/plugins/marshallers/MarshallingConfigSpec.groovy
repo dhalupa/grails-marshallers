@@ -1,16 +1,15 @@
 package org.grails.plugins.marshallers
 
-import grails.test.mixin.TestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
+
 import org.grails.plugins.marshallers.ExtendedConvertersConfigurationInitializer
 import org.grails.plugins.marshallers.JsonMarshallerArtefactHandler
 import org.grails.plugins.marshallers.XmlMarshallerArtefactHandler
 import org.grails.plugins.marshallers.config.MarshallingConfigBuilder
+import org.grails.testing.GrailsUnitTest
 import org.grails.web.converters.configuration.ConvertersConfigurationInitializer
 import spock.lang.Specification
 
-@TestMixin(GrailsUnitTestMixin.class)
-class MarshallingConfigSpec extends Specification {
+class MarshallingConfigSpec extends Specification implements GrailsUnitTest {
 
 	def setup(){
 		// this has to be called first as there's no declarative way to enforce

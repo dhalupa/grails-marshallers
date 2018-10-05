@@ -20,6 +20,7 @@ import grails.converters.XML
 import grails.core.GrailsApplication
 import grails.core.support.proxy.ProxyHandler
 import grails.util.GrailsClassUtils
+import grails.util.GrailsNameUtils
 import groovy.util.logging.Log4j
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigBuilder
@@ -66,7 +67,7 @@ class ExtendedConvertersConfigurationInitializer implements ApplicationContextAw
         // register marshallers for given domain classes and the declared marshalling configurations
         marshallerClasses.each { type, marshallerClass ->
 
-            def typeName = GrailsClassUtils.getShortName(type).toLowerCase()
+            def typeName = GrailsNameUtils.getShortName(type).toLowerCase()
 
             dcMarshallingConfigs.get(typeName).each { name, configPool ->
                 def marshaller = marshallerClass.newInstance(proxyHandler, application, configPool)

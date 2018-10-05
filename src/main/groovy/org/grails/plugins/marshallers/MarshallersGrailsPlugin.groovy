@@ -9,38 +9,39 @@ class MarshallersGrailsPlugin extends Plugin {
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "3.0.16 > *"
     // resources that are excluded from plugin packaging
+
+    def profiles = ['web']
+
     def pluginExcludes = [
             "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
-    def title = "Marshallers" // Headline display name of the plugin
-    def author = "Your name"
-    def authorEmail = ""
-    def description = '''\
-Brief summary/description of the plugin.
+    def scm = [url: "https://github.com/pedjak/grails-marshallers"]
+    def licence = "APACHE"
+
+    def artefacts = [
+            XmlMarshallerArtefactHandler,
+            JsonMarshallerArtefactHandler
+    ]
+
+    def watchedResources = [
+            'file:./grails-app/domain/*.groovy',
+            'file:./grails-app/conf/Config.groovy'
+    ]
+
+    def author = "Predrag Knezevic"
+    def authorEmail = "pedjak@gmail.com"
+
+    def developers = [[name: "Denis Halupa", email: "denis.halupa@gmail.com"], [name: "Angel Ruiz", email: "aruizca@gmail.com"]]
+
+    def title = "Easy Custom XML and JSON Marshalling for Grails Converters"
+    def description = '''\\
+Easy registration and usage of custom XML and JSON marshallers supporting hierarchical configurations.
+Further documentation can be found on the GitHub repo.
 '''
-    def profiles = ['web']
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/marshallers"
-
-    // Extra (optional) plugin metadata
-
-    // License: one of 'APACHE', 'GPL2', 'GPL3'
-//    def license = "APACHE"
-
-    // Details of company behind the plugin (if there is one)
-//    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
-
-    // Any additional developers beyond the author specified above.
-//    def developers = [ [ name: "Joe Bloggs", email: "joe@bloggs.net" ]]
-
-    // Location of the plugin's issue tracker.
-//    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
-
-    // Online location of the plugin's browseable source code.
-//    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
+    def documentation = "https://github.com/pedjak/grails-marshallers"
 
     Closure doWithSpring() {
         { ->
