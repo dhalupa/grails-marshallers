@@ -22,6 +22,7 @@ import grails.core.support.proxy.ProxyHandler
 import grails.util.GrailsClassUtils
 import grails.util.GrailsNameUtils
 import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigBuilder
 import org.grails.plugins.marshallers.config.MarshallingConfigPool
@@ -34,7 +35,7 @@ import org.springframework.context.ApplicationContextAware
  * @author Predrag Knezevic
  * @version $Date: $
  */
-@Log4j
+@Slf4j
 class ExtendedConvertersConfigurationInitializer implements ApplicationContextAware {
 
     private ApplicationContext applicationContext
@@ -48,6 +49,7 @@ class ExtendedConvertersConfigurationInitializer implements ApplicationContextAw
     private final static DEFAULT_CONFIGURATION_NAME = 'default'
 
     void initialize() {
+        log.debug('E')
         application = applicationContext.grailsApplication
         ProxyHandler proxyHandler = applicationContext.getBean(ProxyHandler.class)
 
@@ -74,6 +76,7 @@ class ExtendedConvertersConfigurationInitializer implements ApplicationContextAw
 
                 def cfg = name == DEFAULT_CONFIGURATION_NAME ? type : ConvertersConfigurationHolder.getNamedConverterConfiguration(name, type)
                 if (!cfg) {
+                    log.debug('Creating named {} configuration for {}', name, type)
                     type.createNamedConfig(name) {
                         cfg = it
                     }

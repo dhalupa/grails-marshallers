@@ -8,6 +8,7 @@ import grails.core.support.proxy.EntityProxyHandler
 import grails.core.support.proxy.ProxyHandler
 import grails.util.GrailsClassUtils
 import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.grails.core.artefact.DomainClassArtefactHandler
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigPool
@@ -20,17 +21,16 @@ import org.springframework.beans.BeanWrapperImpl
 
 /**
  *
- * @author dhalupa
- *
+ * @author dhalupa*
  */
-@Log4j
+@Slf4j
 class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
     private GrailsApplication application
     private ProxyHandler proxyHandler
     private MarshallingConfigPool configPool
     private static MarshallingContext marshallingContext = new MarshallingContext();
 
-    public GenericDomainClassJSONMarshaller(ProxyHandler proxyHandler, GrailsApplication application, MarshallingConfigPool configPool) {
+    GenericDomainClassJSONMarshaller(ProxyHandler proxyHandler, GrailsApplication application, MarshallingConfigPool configPool) {
         if (log.debugEnabled) log.debug("Registered json domain class marshaller")
         this.proxyHandler = proxyHandler
         this.application = application
@@ -38,7 +38,7 @@ class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
     }
 
     @Override
-    public boolean supports(Object object) {
+    boolean supports(Object object) {
         def clazz = proxyHandler.unwrapIfProxy(object).getClass()
         boolean supports = configPool.get(clazz) != null
         if (log.debugEnabled) log.debug("Support for $clazz is $supports")
@@ -46,10 +46,11 @@ class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
     }
 
     @Override
-    public void marshalObject(Object v, JSON json) throws ConverterException {
+    void marshalObject(Object v, JSON json) throws ConverterException {
         JSONWriter writer = json.getWriter()
         def value = proxyHandler.unwrapIfProxy(v)
         Class clazz = value.getClass()
+        log.debug('Marshalling {}', clazz.name)
         MarshallingConfig mc = configPool.get(clazz, true)
         GrailsDomainClass domainClass = (GrailsDomainClass) application.getArtefact(
                 DomainClassArtefactHandler.TYPE, ConverterUtil.trimProxySuffix(clazz.getName()))

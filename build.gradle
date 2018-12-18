@@ -1,35 +1,43 @@
 buildscript {
+    ext {
+        grailsVersion = project.grailsVersion
+    }
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.2"
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:latest.release"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
+        classpath "org.grails.plugins:hibernate4:5.0.10"
     }
 }
 
-plugins {
-    id "io.spring.dependency-management" version "0.5.4.RELEASE"
-    id "com.jfrog.bintray" version "1.2"
+version "0.1"
+group "grails.marshallers"
+
+apply plugin:"eclipse"
+apply plugin:"idea"
+apply plugin:"war"
+apply plugin:"org.grails.grails-web"
+apply plugin:"org.grails.grails-gsp"
+apply plugin:"asset-pipeline"
+
+ext {
+    grailsVersion = project.grailsVersion
+    gradleWrapperVersion = project.gradleWrapperVersion
 }
-
-version "0.8.4"
-
-group "org.grails.plugins"
-
-apply plugin: "eclipse"
-apply plugin: "idea"
-apply plugin: "org.grails.grails-plugin"
-apply plugin: "org.grails.grails-plugin-publish"
-apply plugin: "asset-pipeline"
-apply plugin: "org.grails.grails-gsp"
-apply plugin: 'com.jfrog.artifactory'
 
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
 }
 
 dependencies {
@@ -38,79 +46,23 @@ dependencies {
     compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
     compile "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
-    compile "org.grails:grails-logging"
-    compile "org.grails:grails-plugin-rest"
-    compile "org.grails:grails-plugin-databinding"
-    compile "org.grails:grails-plugin-i18n"
-    compile "org.grails:grails-plugin-services"
-    compile "org.grails:grails-plugin-url-mappings"
-    compile "org.grails:grails-plugin-interceptors"
     compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:async"
     compile "org.grails.plugins:scaffolding"
-    compile "org.grails.plugins:gsp"
+    compile "org.grails.plugins:hibernate4"
+    compile "org.hibernate:hibernate-ehcache"
     console "org.grails:grails-console"
-    profile "org.grails.profiles:web-plugin"
-    provided "org.grails:grails-plugin-services"
-    provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.14.2"
-    testCompile "org.grails:grails-gorm-testing-support"
+    profile "org.grails.profiles:web"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
+    runtime "com.h2database:h2"
     testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.grails:grails-web-testing-support"
+    testCompile "org.grails.plugins:geb"
+    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
+    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
 }
-
-bootRun {
-    jvmArgs('-Dspring.output.ansi.enabled=always')
-    addResources = true
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
-}
-// enable if you wish to package this plugin as a standalone application
-bootRepackage.enabled = false
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            //required in order to remove all dependencies without version from pom
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencyManagement.replaceNode {}
-                pomNode.dependencies.dependency.findAll {
-                    it.version.text().isEmpty()
-                }.each {
-                    it.replaceNode {}
-                }
-            }
-            from components.java
-        }
-    }
-}
-
-artifactory {
-    contextUrl = 'https://artifactory.abz-reporting.com/artifactory'
-    publish {
-        repository {
-            repoKey = 'plugins-release-local' // The Artifactory repository key to publish to
-            username = "${abzLdapUser}" // The publisher user name
-            password = "${abzLdapPassword}" // The publisher password
-        }
-        defaults {
-            // Reference to Gradle publications defined in the build script.
-            // This is how we tell the Artifactory Plugin which artifacts should be
-            // published to Artifactory.
-            publications('mavenJava')
-            publishArtifacts = true
-            // Publish generated POM files to Artifactory (true by default)
-            publishPom = true
-        }
-    }
-    resolve {
-        repoKey = 'jcenter'
-    }
-}
-
 
 assets {
-    packagePlugin = true
+    minifyJs = true
+    minifyCss = true
 }

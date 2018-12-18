@@ -1,5 +1,6 @@
 package org.grails.plugins.marshallers
 
+import grails.core.ArtefactHandler
 import grails.plugins.Plugin
 import groovy.util.logging.Log4j
 
@@ -19,7 +20,7 @@ class MarshallersGrailsPlugin extends Plugin {
     def scm = [url: "https://github.com/pedjak/grails-marshallers"]
     def licence = "APACHE"
 
-    def artefacts = [
+    List<ArtefactHandler> artefacts = [
             XmlMarshallerArtefactHandler,
             JsonMarshallerArtefactHandler
     ]
