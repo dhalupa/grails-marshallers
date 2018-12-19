@@ -1,5 +1,7 @@
 package org.grails.plugins.marshallers
 
+import grails.test.mixin.TestMixin
+import grails.test.mixin.domain.DomainClassUnitTestMixin
 import org.grails.plugins.marshallers.ExtendedConvertersConfigurationInitializer
 import org.grails.plugins.marshallers.JsonMarshallerArtefactHandler
 import org.grails.plugins.marshallers.XmlMarshallerArtefactHandler
@@ -7,6 +9,7 @@ import org.grails.plugins.marshallers.config.MarshallingConfigBuilder
 import org.grails.web.converters.configuration.ConvertersConfigurationInitializer
 import spock.lang.Specification
 
+@TestMixin(DomainClassUnitTestMixin)
 class MarshallingConfigSpec extends Specification {
 
     def setup() {
