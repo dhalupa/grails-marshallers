@@ -2,7 +2,8 @@ package org.grails.plugins.marshallers
 
 import grails.converters.JSON
 import grails.persistence.Entity
-import grails.testing.gorm.DataTest
+import grails.test.mixin.TestMixin
+import grails.test.mixin.domain.DomainClassUnitTestMixin
 import org.grails.web.converters.configuration.ConvertersConfigurationInitializer
 import spock.lang.Specification
 
@@ -11,8 +12,8 @@ import spock.lang.Specification
  * @author dhalupa
  *
  */
-
-class GenericDomainClassJSONMarshallerUnitSpec extends Specification implements DataTest {
+@TestMixin(DomainClassUnitTestMixin)
+class GenericDomainClassJSONMarshallerUnitSpec extends Specification  {
 
     def invoice, item1, item2
 
