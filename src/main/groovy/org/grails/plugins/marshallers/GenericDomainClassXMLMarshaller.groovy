@@ -8,6 +8,7 @@ import grails.core.support.proxy.EntityProxyHandler
 import grails.core.support.proxy.ProxyHandler
 import grails.util.GrailsClassUtils
 import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.grails.core.artefact.DomainClassArtefactHandler
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigPool
@@ -20,10 +21,9 @@ import org.springframework.beans.BeanWrapperImpl
 
 /**
  *
- * @author dhalupa
- *
+ * @author dhalupa*
  */
-@Log4j
+@Slf4j
 class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwareMarshaller {
 
     private ProxyHandler proxyHandler
@@ -34,23 +34,23 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
 
     private static Map<Class, Class> attributeEditors = new HashMap<Class, Class>()
 
-    public GenericDomainClassXMLMarshaller(ProxyHandler proxyHandler, GrailsApplication application, MarshallingConfigPool configPool) {
+    GenericDomainClassXMLMarshaller(ProxyHandler proxyHandler, GrailsApplication application, MarshallingConfigPool configPool) {
         this.proxyHandler = proxyHandler
         this.application = application
         this.configPool = configPool
     }
 
     @Override
-    public boolean supports(Object object) {
+    boolean supports(Object object) {
         def clazz = proxyHandler.unwrapIfProxy(object).getClass()
         boolean supports = configPool.get(clazz) != null
-        if (log.debugEnabled) log.debug("Support for $clazz is $supports")
+        log.trace("Support for {} is {}", clazz, supports)
         return supports
     }
 
     @Override
-    public void marshalObject(Object v, XML xml) throws ConverterException {
-        if (log.debugEnabled) log.debug("Marshalling of $v started")
+    void marshalObject(Object v, XML xml) throws ConverterException {
+        log.trace("Marshalling of {} started", v)
         def value = proxyHandler.unwrapIfProxy(v)
         Class clazz = value.getClass()
         GrailsDomainClass domainClass = application.getArtefact(DomainClassArtefactHandler.TYPE, clazz.getName())
@@ -84,7 +84,7 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
         }
 
         mc.attribute?.each { prop ->
-            if (log.debugEnabled) log.debug("Trying to write field as xml attribute: $prop on $value")
+            log.trace("Trying to write field as xml attribute: {} on {}", prop, value)
             Object val = beanWrapper.getPropertyValue(prop)
             if (val != null) {
                 def editorEntry = attributeEditors.find { it.key.isAssignableFrom(val.getClass()) }
@@ -116,7 +116,7 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
                     xml.end()
                 } else {
                     if (val != null) {
-                        if (log.debugEnabled) log.debug("Trying to write field as xml element: $property.name on $value")
+                        log.trace("Trying to write field as xml element: {} on {}", property.name, value)
                         writeElement(xml, property, beanWrapper, mc)
                     }
                 }
@@ -233,13 +233,13 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
     }
 
 
-    public static registerAttributeEditor(Class attrType, Class editorType) {
+    static registerAttributeEditor(Class attrType, Class editorType) {
         attributeEditors.put(attrType, editorType)
     }
 
     @Override
-    public String getElementName(Object value) {
-        if (log.debugEnabled) log.debug("Fetching element name for $value")
+    String getElementName(Object value) {
+        log.trace("Fetching element name for {}", value)
         Class clazz = proxyHandler.unwrapIfProxy(value).getClass()
         GrailsDomainClass domainClass = application.getArtefact(DomainClassArtefactHandler.TYPE, ConverterUtil.trimProxySuffix(clazz.getName()))
         MarshallingConfig mc = configPool.get(clazz, true)
@@ -250,7 +250,7 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
      *
      * @return marshalling context for the xml marshalling
      */
-    public static MarshallingContext getMarshallingContext() {
+    static MarshallingContext getMarshallingContext() {
         return marshallingContext
     }
 }

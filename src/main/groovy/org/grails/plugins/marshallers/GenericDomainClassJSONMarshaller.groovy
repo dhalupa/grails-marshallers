@@ -31,7 +31,6 @@ class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
     private static MarshallingContext marshallingContext = new MarshallingContext();
 
     GenericDomainClassJSONMarshaller(ProxyHandler proxyHandler, GrailsApplication application, MarshallingConfigPool configPool) {
-        if (log.debugEnabled) log.debug("Registered json domain class marshaller")
         this.proxyHandler = proxyHandler
         this.application = application
         this.configPool = configPool
@@ -41,7 +40,7 @@ class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
     boolean supports(Object object) {
         def clazz = proxyHandler.unwrapIfProxy(object).getClass()
         boolean supports = configPool.get(clazz) != null
-        if (log.debugEnabled) log.debug("Support for $clazz is $supports")
+        log.trace("Support for {} is {}", clazz, supports)
         return supports
     }
 
@@ -50,7 +49,7 @@ class GenericDomainClassJSONMarshaller implements ObjectMarshaller<JSON> {
         JSONWriter writer = json.getWriter()
         def value = proxyHandler.unwrapIfProxy(v)
         Class clazz = value.getClass()
-        log.debug('Marshalling {}', clazz.name)
+        log.trace('Marshalling {}', clazz.name)
         MarshallingConfig mc = configPool.get(clazz, true)
         GrailsDomainClass domainClass = (GrailsDomainClass) application.getArtefact(
                 DomainClassArtefactHandler.TYPE, ConverterUtil.trimProxySuffix(clazz.getName()))
