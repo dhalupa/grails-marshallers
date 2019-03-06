@@ -5,23 +5,29 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
+        jcenter()
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.8.2"
-        classpath "org.grails.plugins:hibernate4:5.0.10"
+
     }
 }
 
-version "0.1"
-group "grails.marshallers"
+plugins {
+    id "io.spring.dependency-management" version "0.5.4.RELEASE"
 
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"war"
-apply plugin:"org.grails.grails-web"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"asset-pipeline"
+}
+
+version "0.8.5"
+group "org.grails.plugins"
+
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: "spring-boot"
+apply plugin: "org.grails.grails-plugin"
+apply plugin: "org.grails.grails-gsp"
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'maven-publish'
 
 ext {
     grailsVersion = project.grailsVersion
@@ -41,28 +47,39 @@ dependencyManagement {
 }
 
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "org.grails:grails-dependencies"
-    compile "org.grails:grails-web-boot"
-    compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:scaffolding"
-    compile "org.grails.plugins:hibernate4"
-    compile "org.hibernate:hibernate-ehcache"
-    console "org.grails:grails-console"
-    profile "org.grails.profiles:web"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.8.2"
-    runtime "com.h2database:h2"
+    provided 'org.springframework.boot:spring-boot-starter-logging'
+    provided "org.springframework.boot:spring-boot-starter-actuator"
+    provided "org.springframework.boot:spring-boot-autoconfigure"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
+    profile "org.grails.profiles:web:3.1.7"
+
+    provided "org.grails:grails-web-boot"
+    provided "org.grails:grails-dependencies"
+    provided 'javax.servlet:javax.servlet-api:3.1.0'
+
     testCompile "org.grails:grails-plugin-testing"
-    testCompile "org.grails.plugins:geb"
-    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+
+    console "org.grails:grails-console"
 }
 
-assets {
-    minifyJs = true
-    minifyCss = true
+
+
+//can not be moved to parent project because dependencyManagement node will not be removed in that case
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            //required in order to remove all dependencies without version from pom
+            pom.withXml {
+                Node pomNode = asNode()
+                pomNode.dependencyManagement.replaceNode {}
+                pomNode.dependencies.dependency.findAll {
+                    it.version.text().isEmpty()
+                }.each {
+                    it.replaceNode {}
+                }
+            }
+            from components.java
+        }
+    }
 }
+
