@@ -19,3 +19,4 @@ out/
 .DS_Store
 build
 /.gradle
+/bin/
