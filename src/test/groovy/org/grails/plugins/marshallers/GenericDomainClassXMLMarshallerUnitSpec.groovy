@@ -1,8 +1,8 @@
 package org.grails.plugins.marshallers
 
 import grails.converters.XML
-import grails.test.mixin.TestMixin
-import grails.test.mixin.domain.DomainClassUnitTestMixin
+import grails.testing.gorm.DataTest
+import groovy.xml.XmlSlurper
 import org.grails.web.converters.configuration.ConvertersConfigurationInitializer
 import org.grails.web.converters.exceptions.ConverterException
 import org.grails.web.converters.marshaller.NameAwareMarshaller
@@ -15,8 +15,8 @@ import spock.lang.Specification
  *
  */
 
-@TestMixin(DomainClassUnitTestMixin)
-class GenericDomainClassXMLMarshallerUnitSpec extends Specification{
+
+class GenericDomainClassXMLMarshallerUnitSpec extends Specification implements DataTest{
 
 	def invoice, item1, item2
 
