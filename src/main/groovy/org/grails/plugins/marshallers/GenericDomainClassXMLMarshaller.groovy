@@ -54,6 +54,8 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
         def value = proxyHandler.unwrapIfProxy(v)
         Class clazz = value.getClass()
         PersistentEntity domainClass = application.mappingContext.getPersistentEntity(clazz.getName())
+
+
         MarshallingConfig mc = configPool.get(clazz)
         BeanWrapper beanWrapper = new BeanWrapperImpl(value)
         if (mc.shouldOutputIdentifier) {
@@ -206,7 +208,7 @@ class GenericDomainClassXMLMarshaller implements ObjectMarshaller<XML>, NameAwar
 
     protected void asShortObject(Object refObj, XML xml, PersistentProperty idProperty,
                                  @SuppressWarnings("unused") PersistentEntity referencedDomainClass) throws ConverterException {
-        MarshallingConfig refClassConfig = configPool.get(referencedDomainClass.class, true)
+        MarshallingConfig refClassConfig = configPool.get(referencedDomainClass.javaClass, true)
         if (refClassConfig?.identifier) {
             if (refClassConfig.identifier.size() == 1 && refClassConfig.identifier[0] instanceof Closure) {
                 refClassConfig.identifier[0].call(refObj, xml)
