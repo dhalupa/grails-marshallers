@@ -1,130 +1,82 @@
 buildscript {
-
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://repo.grails.org/grails/core" }
+        mavenCentral()
     }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
+    dependencies { // Not Published to Gradle Plugin Portal
+        classpath "org.grails:grails-gradle-plugin:6.2.4"
+        classpath "org.grails.plugins:hibernate5:8.1.0"
         classpath group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '4.9.3'
     }
 }
 
-
 plugins {
-    id "com.jfrog.artifactory" version "4.18.3"
+    id "groovy"
+    id "war"
+    id "idea"
+    id "application"
+    id "eclipse"
+    id "com.jfrog.artifactory" version "5.2.5"
     id 'maven-publish'
 }
 
-version "0.8.7-SNAPSHOT"
-group "org.grails.plugins"
+version "0.9.0-SNAPSHOT"
 
-apply plugin: 'eclipse'
-apply plugin: 'idea'
+// Not Published to Gradle Plugin Portal
 apply plugin: "org.grails.grails-plugin"
-//apply plugin: "asset-pipeline"
-apply plugin: "org.grails.grails-gsp"
+
+group = "org.grails.plugins"
 
 repositories {
-    mavenLocal()
     mavenCentral()
-    maven { url "https://repo.grails.org/grails/core" }
-    maven {
-        credentials {
-            username abzLdapUser
-            password abzLdapPassword
-        }
-        url 'https://artifactory.abz-reporting.com/artifactory/libs'
-    }
+    maven { url "https://repo.grails.org/grails/core/" }
 }
 
 configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
+    all {
     }
 }
 
 dependencies {
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    compileOnly "io.micronaut:micronaut-inject-groovy"
-    console "org.grails:grails-console"
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    profile "org.grails.profiles:plugin"
     implementation "org.grails:grails-core"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "org.grails:grails-web-boot"
     implementation "org.grails:grails-logging"
-    implementation "org.grails:grails-plugin-rest"
     implementation "org.grails:grails-plugin-databinding"
     implementation "org.grails:grails-plugin-i18n"
+    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails:grails-plugin-rest"
     implementation "org.grails:grails-plugin-services"
     implementation "org.grails:grails-plugin-url-mappings"
-    implementation "org.grails:grails-plugin-interceptors"
-    implementation "org.grails.plugins:cache"
-    implementation "org.grails.plugins:async"
-    implementation "org.grails.plugins:scaffolding"
-    implementation "org.grails.plugins:gsp"
-    profile "org.grails.profiles:web-plugin"
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails.plugins:hibernate5"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    compileOnly "io.micronaut:micronaut-inject-groovy"
+    console "org.grails:grails-console"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
-    testImplementation "org.mockito:mockito-core"
-    testImplementation "org.grails:grails-web-testing-support"
+    testImplementation "org.spockframework:spock-core"
+
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
-    //This dependency is here to upgrade the version
-    implementation('log4j:log4j:1.2.15') {
-        exclude module: 'jms'
-        exclude module: 'jmxtools'
-        exclude module: 'jmxri'
-    }
-
 
 }
 
 
-bootRun {
-    ignoreExitValue true
-    jvmArgs(
-            '-Dspring.output.ansi.enabled=always',
-            '-noverify',
-            '-XX:TieredStopAtLevel=1',
-            '-Xmx1024m')
-    sourceResources sourceSets.main
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
-}
-
-tasks.withType(GroovyCompile) {
-    configure(groovyOptions) {
-        forkOptions.jvmArgs = ['-Xmx1024m']
-    }
-}
-
-tasks.withType(Jar) {
-
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+java {
+    sourceCompatibility = JavaVersion.toVersion("17")
 }
 
 tasks.withType(Test) {
     useJUnitPlatform()
 }
-// enable if you wish to package this plugin as a standalone application
-bootJar.enabled = false
-
-
-//assets {
-//    packagePlugin = true
-//}
 
 task sourceJar(type: Jar) {
     classifier 'sources'
     from sourceSets.main.allJava
 }
-
 
 publishing {
     publications {
@@ -149,4 +101,3 @@ artifactory {
     }
 
 }
-

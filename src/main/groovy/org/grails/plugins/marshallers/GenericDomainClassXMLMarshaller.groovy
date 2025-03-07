@@ -8,7 +8,6 @@ import groovy.util.logging.Slf4j
 import org.grails.datastore.mapping.model.PersistentEntity
 import org.grails.datastore.mapping.model.PersistentProperty
 import org.grails.datastore.mapping.model.types.Association
-import org.grails.datastore.mapping.model.types.ToMany
 import org.grails.datastore.mapping.model.types.ToOne
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigPool

@@ -3,8 +3,9 @@ package org.grails.plugins.marshallers
 import grails.core.ArtefactHandler
 import grails.plugins.Plugin
 import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 
-@Log4j
+@Slf4j
 class MarshallersGrailsPlugin extends Plugin {
 
     // the version or versions of Grails the plugin is designed for

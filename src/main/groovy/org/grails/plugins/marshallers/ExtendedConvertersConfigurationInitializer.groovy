@@ -21,7 +21,6 @@ import grails.core.GrailsApplication
 import grails.core.support.proxy.ProxyHandler
 import grails.util.GrailsClassUtils
 import grails.util.GrailsNameUtils
-import groovy.util.logging.Log4j
 import groovy.util.logging.Slf4j
 import org.grails.plugins.marshallers.config.MarshallingConfig
 import org.grails.plugins.marshallers.config.MarshallingConfigBuilder

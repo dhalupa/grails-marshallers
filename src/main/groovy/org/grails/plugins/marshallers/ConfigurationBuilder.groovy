@@ -16,20 +16,19 @@
 package org.grails.plugins.marshallers
 
 import grails.util.GrailsClassUtils
-import groovy.util.logging.Log
 import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.grails.web.converters.Converter
 import org.grails.web.converters.configuration.ConvertersConfigurationHolder
 import org.grails.web.converters.configuration.DefaultConverterConfiguration
 import org.grails.web.converters.marshaller.ClosureObjectMarshaller
 import org.grails.web.converters.marshaller.NameAwareMarshaller
 
-
 /**
  * @author Predrag Knezevic
  * @version $Date: $
  */
-@Log4j
+@Slf4j
 class ConfigurationBuilder {
     private static String CONFIGURATION_FIELD = "configuration"
     
